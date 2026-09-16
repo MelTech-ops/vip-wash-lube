@@ -1,4 +1,15 @@
 // Single source of truth for business copy across the site.
+
+// Link preview (Open Graph). This is the picture and text that appear when the site
+// URL is pasted into iMessage, WhatsApp, Facebook, LinkedIn, Slack or X.
+// OG_IMAGE: drop a 1200x630 JPG or PNG into public/ and point this at it, e.g.
+// "/og-image.jpg". Leave it empty to fall back to the first Wix service image.
+export const SITE = {
+  name: "VIP Wash & Lube",
+  ogImage: "/og-image.jpg",
+  ogImageAlt: "VIP Wash & Lube detailing bay",
+};
+
 // PLACEHOLDER: hours, prices and the location blurbs are benchmarked, not confirmed.
 // Replace with the owner's real figures before this goes anywhere public.
 

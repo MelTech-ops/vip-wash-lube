@@ -2,13 +2,30 @@
 // VIP Wash & Lube — site chrome.
 // Keep the <slot name="seo-tags" /> in <head> and the global.css import.
 import "../styles/global.css";
-import { LOCATIONS, HOURS } from "../components/site/locations";
+import { LOCATIONS, HOURS, SITE } from "../components/site/locations";
 
 interface Props {
   title: string;
   description?: string;
+  /** Per-page link-preview image. Absolute URL, or a path under public/ like "/og-image.jpg". */
+  ogImage?: string;
+  /** Service pages let Wix's <SEO.Tags> own their social tags. Set true there to avoid duplicates. */
+  seoManaged?: boolean;
 }
-const { title, description } = Astro.props;
+const { title, description, ogImage, seoManaged = false } = Astro.props;
+
+// Behind Wix's proxy the request URL is internal; the real public URL arrives on
+// x-wix-forwarded-url. Social scrapers need absolute URLs, so resolve against that.
+const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
+const base =
+  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol)
+    ? new URL(forwardedUrl)
+    : Astro.url;
+const canonical = new URL(base.pathname, base.origin).href;
+const rawImage = ogImage || SITE.ogImage;
+const absoluteImage = rawImage
+  ? (rawImage.startsWith("http") ? rawImage : new URL(rawImage, base.origin).href)
+  : "";
 const year = new Date().getFullYear();
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 
@@ -29,6 +46,30 @@ const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWit
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+
+    {!seoManaged && (
+      <>
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE.name} />
+        <meta property="og:title" content={title} />
+        {description && <meta property="og:description" content={description} />}
+        <meta property="og:url" content={canonical} />
+        {absoluteImage && (
+          <>
+            <meta property="og:image" content={absoluteImage} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content={SITE.ogImageAlt} />
+            <meta name="twitter:image" content={absoluteImage} />
+          </>
+        )}
+        <meta name="twitter:card" content={absoluteImage ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={title} />
+        {description && <meta name="twitter:description" content={description} />}
+      </>
+    )}
+
     <slot name="seo-tags" />
   </head>
   <body>
