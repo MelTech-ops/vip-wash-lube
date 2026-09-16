@@ -3,6 +3,7 @@
 // Keep the <slot name="seo-tags" /> in <head> and the global.css import.
 import "../styles/global.css";
 import { LOCATIONS, HOURS, SITE } from "../components/site/locations";
+import { fetchServices } from "../wix/bookings/services";
 
 interface Props {
   title: string;
@@ -22,7 +23,22 @@ const base =
     ? new URL(forwardedUrl)
     : Astro.url;
 const canonical = new URL(base.pathname, base.origin).href;
-const rawImage = ogImage || SITE.ogImage;
+// The link preview uses the same photo as the home page hero. It lives on Wix's CDN and
+// is resolved here at render time, where Wix's server can reach it. Falls back to the
+// typographic card in public/ if Bookings is unreachable.
+let heroPhoto = "";
+if (!seoManaged) {
+  try {
+    const all = await fetchServices();
+    heroPhoto =
+      all.find((s) => s.slug === "the-complete-vip-detail")?.imageUrl ||
+      all.find((s) => s.imageUrl)?.imageUrl ||
+      "";
+  } catch {
+    // fall through to the static card
+  }
+}
+const rawImage = ogImage || heroPhoto || SITE.ogImage;
 const absoluteImage = rawImage
   ? (rawImage.startsWith("http") ? rawImage : new URL(rawImage, base.origin).href)
   : "";
@@ -58,8 +74,6 @@ const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWit
         {absoluteImage && (
           <>
             <meta property="og:image" content={absoluteImage} />
-            <meta property="og:image:width" content="1200" />
-            <meta property="og:image:height" content="630" />
             <meta property="og:image:alt" content={SITE.ogImageAlt} />
             <meta name="twitter:image" content={absoluteImage} />
           </>
