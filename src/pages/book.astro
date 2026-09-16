@@ -1,0 +1,135 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { fetchServices } from "../wix/bookings/services";
+import type { ServiceSummary } from "../wix/bookings/types";
+import { LOCATIONS, HOURS } from "../components/site/locations";
+
+let services: ServiceSummary[] = [];
+try { services = await fetchServices(); } catch {}
+
+const assessment = services.find((s) => s.tagLine.toLowerCase().includes("complimentary"));
+const paid = services.filter((s) => s !== assessment);
+
+function duration(mins: number | null) {
+  if (!mins) return null;
+  if (mins >= 480) return "Full day";
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return m ? `${h} hr ${m} min` : `${h} hr`;
+}
+---
+
+<SiteLayout
+  title="Book Now | VIP Wash & Lube"
+  description="Book a detailing appointment at VIP Wash & Lube in Stratford, Bridgeport or East Hartford. Pick a service and a time — no card needed to reserve."
+>
+  <section class="grain relative isolate overflow-hidden navy-depth">
+    <div class="relative mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-28">
+      <p class="eyebrow-on-navy" data-reveal>Book Now</p>
+      <h1 class="display-lg mt-6 max-w-3xl text-white" data-reveal style="--reveal-delay:90ms">
+        Pick a service.<br /><span class="italic text-accent-on-navy">Pick a time.</span>
+      </h1>
+      <span class="rule-accent mt-8" data-reveal style="--reveal-delay:160ms"></span>
+      <p class="mt-8 max-w-xl text-lg leading-relaxed text-navy-300" data-reveal style="--reveal-delay:220ms">
+        Takes about a minute. No card needed to reserve &mdash; you settle up at the shop when we hand
+        the keys back. Wash and oil change are drive-up, no booking required.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-20 lg:px-10 lg:py-24">
+    {services.length === 0 ? (
+      <div class="border border-border p-12 text-center">
+        <p class="font-display text-2xl text-navy-900">Booking is briefly unavailable</p>
+        <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+          Call any of our three locations and we&rsquo;ll book your appointment directly.
+        </p>
+        <div class="mt-7 flex flex-wrap justify-center gap-3">
+          {LOCATIONS.map((l) => (
+            <a href={l.phoneHref} class="border border-border px-6 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-navy-900 no-underline transition-colors hover:border-navy-900">
+              {l.city} · {l.phone}
+            </a>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <>
+        {assessment && (
+          <a href={`/services/${assessment.slug}`} class="group mb-10 flex flex-wrap items-center justify-between gap-8 border border-navy-900 p-9 no-underline transition-colors hover:bg-secondary lg:p-10" data-reveal>
+            <div>
+              <p class="eyebrow">Free · Start Here If Unsure</p>
+              <p class="mt-3 font-display text-3xl leading-tight text-navy-900">{assessment.name}</p>
+              <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                Twenty minutes with a detailer. We look at the paint, interior and headlights, then
+                quote the exact package &mdash; before you spend anything.
+              </p>
+            </div>
+            <span class="bg-navy-900 px-8 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-primary-foreground">
+              Book the walkthrough
+            </span>
+          </a>
+        )}
+
+        <p class="eyebrow" data-reveal>Choose Your Service</p>
+        <div class="mt-8 divide-y divide-border border-y border-border">
+          {paid.map((s, i) => (
+            <a href={`/services/${s.slug}`} class="group flex flex-wrap items-center gap-6 py-7 no-underline sm:flex-nowrap" data-reveal style={`--reveal-delay:${i * 60}ms`}>
+              {s.imageUrl && (
+                <div class="h-24 w-32 shrink-0 overflow-hidden bg-secondary">
+                  <img src={s.imageUrl} alt="" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                </div>
+              )}
+              <div class="min-w-0 flex-1">
+                <h2 class="font-display text-2xl leading-tight text-navy-900">{s.name}</h2>
+                <p class="mt-1.5 text-[0.8125rem] font-medium uppercase tracking-[0.1em] text-muted-foreground">{s.tagLine}</p>
+              </div>
+              <div class="flex shrink-0 items-center gap-8">
+                {duration(s.durationMinutes) && (
+                  <span class="hidden text-sm text-muted-foreground sm:block">{duration(s.durationMinutes)}</span>
+                )}
+                <span class="border border-navy-900 px-6 py-3 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-navy-900 transition-colors group-hover:bg-navy-900 group-hover:text-primary-foreground">
+                  Select
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+  </section>
+
+  <section class="border-t border-border bg-secondary">
+    <div class="mx-auto grid w-full max-w-[1400px] gap-12 px-6 py-16 lg:grid-cols-3 lg:px-10">
+      <div data-reveal>
+        <p class="eyebrow">Where</p>
+        <ul class="mt-4 space-y-2 text-sm">
+          {LOCATIONS.map((l) => (
+            <li class="flex justify-between gap-6 border-b border-border pb-2">
+              <span class="text-navy-900">{l.city}</span>
+              <a href={l.phoneHref} class="text-muted-foreground no-underline hover:text-navy-900">{l.phone}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div data-reveal style="--reveal-delay:90ms">
+        <p class="eyebrow">When</p>
+        <dl class="mt-4 space-y-2 text-sm">
+          {HOURS.map((h) => (
+            <div class="flex justify-between gap-6 border-b border-border pb-2">
+              <dt class="text-muted-foreground">{h.days}</dt>
+              <dd class="text-navy-900">{h.time}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div data-reveal style="--reveal-delay:180ms">
+        <p class="eyebrow">Good To Know</p>
+        <ul class="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <li class="border-b border-border pb-3">No deposit or card needed to reserve a bay.</li>
+          <li class="border-b border-border pb-3">Payment is taken at the shop on collection.</li>
+          <li class="border-b border-border pb-3">Express wash and oil change are drive-up, no appointment.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</SiteLayout>

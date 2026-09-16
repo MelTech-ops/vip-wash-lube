@@ -18,11 +18,17 @@ pnpm-debug.log*
 
 # environment variables
 .env
-.env.production
-.env.local
+.env.*
+!.env.example
 
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+
+# fast-path scaffold artifacts
+npm-install.log
+seed.log
+seed-result.json
+.seed-exit

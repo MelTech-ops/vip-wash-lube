@@ -1,0 +1,89 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { LOCATIONS, HOURS } from "../components/site/locations";
+---
+
+<SiteLayout
+  title="Locations | VIP Wash & Lube"
+  description="VIP Wash & Lube locations in Stratford, Bridgeport and East Hartford, Connecticut — addresses, phone numbers, hours and directions."
+>
+  <section class="grain relative isolate overflow-hidden navy-depth">
+    <div class="relative mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-28">
+      <p class="eyebrow-on-navy" data-reveal>Find Us</p>
+      <h1 class="display-lg mt-6 max-w-3xl text-white" data-reveal style="--reveal-delay:90ms">
+        Three Connecticut shops,<br /><span class="italic text-accent-on-navy">one standard</span>
+      </h1>
+      <span class="rule-accent mt-8" data-reveal style="--reveal-delay:160ms"></span>
+      <p class="mt-8 max-w-xl text-lg leading-relaxed text-navy-300" data-reveal style="--reveal-delay:220ms">
+        Same equipment, same chemicals, same training at every location. Wash and lube are drive-up.
+        Detailing is by appointment.
+      </p>
+    </div>
+  </section>
+
+  {LOCATIONS.map((loc, i) => (
+    <section class={`scroll-mt-24 ${i % 2 === 1 ? "border-y border-border bg-secondary" : ""}`} id={loc.slug}>
+      <div class="mx-auto w-full max-w-[1400px] px-6 py-20 lg:px-10 lg:py-24">
+        <div class="grid gap-14 lg:grid-cols-[1fr_1fr] lg:gap-20">
+          <div data-reveal>
+            <p class="eyebrow">Location {String(i + 1).padStart(2, "0")}</p>
+            <h2 class="display-lg mt-4 text-navy-900">{loc.city}</h2>
+            <span class="rule-accent mt-6"></span>
+            <p class="mt-8 max-w-lg text-base leading-relaxed text-muted-foreground">{loc.blurb}</p>
+
+            <ul class="mt-9 grid max-w-md grid-cols-2 gap-x-8 gap-y-3">
+              {loc.features.map((f) => (
+                <li class="flex items-baseline gap-3 border-b border-border pb-3 text-sm text-navy-900">
+                  <span class="h-1 w-1 shrink-0 bg-accent"></span>
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="mt-10 flex flex-wrap gap-3">
+              <a href="/book" class="bg-navy-900 px-7 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-primary-foreground no-underline transition-colors hover:bg-navy-800">
+                Book a Detail Here
+              </a>
+              <a href={`https://maps.google.com/?q=${loc.mapsQuery}`} target="_blank" rel="noopener" class="border border-border px-7 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-navy-900 no-underline transition-colors hover:border-navy-900">
+                Directions
+              </a>
+            </div>
+          </div>
+
+          <div data-reveal style="--reveal-delay:120ms">
+            <div class="border border-border bg-background p-9">
+              <p class="eyebrow">Address</p>
+              <address class="mt-4 text-lg not-italic leading-relaxed text-navy-900">
+                {loc.address}<br />
+                {loc.cityStateZip}
+              </address>
+
+              <p class="eyebrow mt-9">Phone</p>
+              <a href={loc.phoneHref} class="mt-3 block font-display text-3xl text-navy-900 no-underline">{loc.phone}</a>
+
+              <p class="eyebrow mt-9">Hours</p>
+              <dl class="mt-4 space-y-2.5 text-sm">
+                {HOURS.map((h) => (
+                  <div class="flex justify-between gap-6 border-b border-border pb-2.5">
+                    <dt class="text-muted-foreground">{h.days}</dt>
+                    <dd class="text-navy-900">{h.time}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div class="mt-4 aspect-[16/9] w-full overflow-hidden border border-border bg-secondary">
+              <iframe
+                title={`Map of VIP Wash & Lube ${loc.city}`}
+                src={`https://maps.google.com/maps?q=${loc.mapsQuery}&output=embed`}
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                class="h-full w-full border-0 grayscale-[0.35]"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  ))}
+</SiteLayout>

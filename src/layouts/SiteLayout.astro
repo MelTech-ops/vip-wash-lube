@@ -1,0 +1,143 @@
+---
+// VIP Wash & Lube — site chrome.
+// Keep the <slot name="seo-tags" /> in <head> and the global.css import.
+import "../styles/global.css";
+import { LOCATIONS, HOURS } from "../components/site/locations";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+const year = new Date().getFullYear();
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/services", label: "Services" },
+  { href: "/locations", label: "Locations" },
+  { href: "/reviews", label: "Reviews" },
+];
+const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <slot name="seo-tags" />
+  </head>
+  <body>
+    <header class="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+      <div class="mx-auto flex h-20 w-full max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10">
+        <a href="/" class="flex items-baseline gap-2.5 no-underline">
+          <span class="font-display text-2xl font-bold leading-none tracking-tight text-navy-900">VIP</span>
+          <span class="hidden h-4 w-px bg-accent sm:block"></span>
+          <span class="hidden text-[0.7rem] font-semibold uppercase leading-none tracking-[0.2em] text-muted-foreground sm:block">Wash &amp; Lube</span>
+        </a>
+
+        <nav class="hidden items-center gap-8 text-[0.8125rem] font-medium lg:flex">
+          {navLinks.map((l) => (
+            <a
+              href={l.href}
+              class={`no-underline transition-colors hover:text-navy-900 ${isActive(l.href) ? "text-navy-900" : "text-muted-foreground"}`}
+            >
+              {l.label}
+            </a>
+          ))}
+        </nav>
+
+        <div class="flex items-center gap-4">
+          <a href={LOCATIONS[0].phoneHref} class="hidden text-[0.8125rem] font-medium text-muted-foreground no-underline transition-colors hover:text-navy-900 xl:block">
+            {LOCATIONS[0].phone}
+          </a>
+          <a
+            href="/book"
+            class="bg-navy-900 px-5 py-2.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-primary-foreground no-underline transition-colors hover:bg-navy-800"
+          >
+            Book Now
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile nav -->
+      <nav class="flex items-center gap-6 overflow-x-auto border-t border-border px-6 py-3 text-[0.75rem] font-medium lg:hidden">
+        {navLinks.map((l) => (
+          <a href={l.href} class={`shrink-0 no-underline ${isActive(l.href) ? "text-navy-900" : "text-muted-foreground"}`}>{l.label}</a>
+        ))}
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-border bg-navy-950 text-navy-300">
+      <div class="mx-auto w-full max-w-[1400px] px-6 py-16 lg:px-10">
+        <div class="grid gap-12 lg:grid-cols-[1.1fr_2fr]">
+          <div>
+            <div class="flex items-baseline gap-2.5">
+              <span class="font-display text-3xl font-bold leading-none text-white">VIP</span>
+              <span class="h-4 w-px bg-accent-on-navy"></span>
+              <span class="text-[0.7rem] font-semibold uppercase leading-none tracking-[0.2em] text-accent-on-navy">Wash &amp; Lube</span>
+            </div>
+            <p class="mt-5 max-w-sm text-sm leading-relaxed">
+              Three Connecticut locations giving every car the VIP treatment — express wash, full-service lube, and appointment detailing.
+            </p>
+            <div class="mt-7">
+              <p class="eyebrow-on-navy">Hours</p>
+              <dl class="mt-3 space-y-1.5 text-sm">
+                {HOURS.map((h) => (
+                  <div class="flex justify-between gap-6 border-b border-navy-800 pb-1.5">
+                    <dt>{h.days}</dt>
+                    <dd class="text-white">{h.time}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+
+          <div>
+            <p class="eyebrow-on-navy">Locations</p>
+            <div class="mt-4 grid gap-8 sm:grid-cols-3">
+              {LOCATIONS.map((loc) => (
+                <div>
+                  <p class="font-display text-xl text-white">{loc.city}</p>
+                  <span class="rule-accent mt-2.5 mb-3.5"></span>
+                  <address class="text-sm not-italic leading-relaxed">
+                    {loc.address}<br />
+                    {loc.cityStateZip}
+                  </address>
+                  <a href={loc.phoneHref} class="mt-2.5 inline-block text-sm text-white no-underline transition-colors hover:text-accent-on-navy">
+                    {loc.phone}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-14 flex flex-col gap-3 border-t border-navy-800 pt-7 text-[0.8125rem] sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} VIP Wash &amp; Lube. All rights reserved.</p>
+          <a href="/book" class="text-accent-on-navy no-underline underline-offset-4 hover:underline">Book an appointment</a>
+        </div>
+      </div>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const items = document.querySelectorAll("[data-reveal]");
+        if (!items.length) return;
+        if (!("IntersectionObserver" in window)) { items.forEach((el) => el.classList.add("is-in")); return; }
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); } });
+        }, { rootMargin: "0px 0px -12% 0px", threshold: 0.08 });
+        items.forEach((el) => io.observe(el));
+      })();
+    </script>
+  </body>
+</html>

@@ -1,8 +1,246 @@
 ---
-import Hero from '../components/Hero.astro';
-import Layout from '../layouts/Layout.astro';
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { fetchServices } from "../wix/bookings/services";
+import type { ServiceSummary } from "../wix/bookings/types";
+import { LOCATIONS, WASH_MENU, LUBE_MENU, MEMBERSHIP, STATS } from "../components/site/locations";
+
+let services: ServiceSummary[] = [];
+try { services = await fetchServices(); } catch {}
+
+const img = (slug: string) => services.find((s) => s.slug === slug)?.imageUrl ?? "";
+const heroImg = img("the-complete-vip-detail") || services.find((s) => s.imageUrl)?.imageUrl || "";
+
+const featured = services
+  .filter((s) => !s.tagLine.toLowerCase().includes("complimentary"))
+  .sort((a, b) => (a.slug === "the-complete-vip-detail" ? -1 : b.slug === "the-complete-vip-detail" ? 1 : 0))
+  .slice(0, 3);
+
+const assessment = services.find((s) => s.tagLine.toLowerCase().includes("complimentary"));
+
+const marquee = ["Stratford", "Ceramic Coating", "Bridgeport", "Paint Correction", "East Hartford", "Full Synthetic Lube", "Interior Detail", "Express Wash"];
+
+const explore = [
+  { href: "/about", eyebrow: "About Us", title: "Thirty years of not cutting corners", body: "The story, the standard, and a gallery of work out of our bays." },
+  { href: "/locations", eyebrow: "Locations", title: "Three Connecticut shops", body: "Addresses, hours, phone numbers and directions for all three." },
+  { href: "/reviews", eyebrow: "Reviews", title: "Rated by the people who drive away", body: "Straight from Google — and a place to leave your own." },
+];
 ---
 
-<Layout>
-	<Hero />
-</Layout>
+<SiteLayout
+  title="VIP Wash & Lube | Car Wash, Oil Change & Detailing in Connecticut"
+  description="Car wash, full-service lube and appointment detailing in Stratford, Bridgeport and East Hartford. Book a detail online, or pull in for an express wash and oil change."
+>
+  <!-- Hero -->
+  <section class="relative isolate grain min-h-[86vh] overflow-hidden navy-depth">
+    {heroImg && <img src={heroImg} alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover opacity-70" />}
+    <div class="scrim-hero absolute inset-0"></div>
+
+    <div class="relative mx-auto flex min-h-[86vh] w-full max-w-[1400px] flex-col justify-center px-6 py-28 lg:px-10">
+      <p class="eyebrow-on-navy" data-reveal>Car Wash &middot; Lube &middot; Detailing &middot; Connecticut</p>
+      <h1 class="display-xl mt-8 max-w-4xl text-white" data-reveal style="--reveal-delay:90ms">
+        Every car leaves<br /><span class="italic text-accent-on-navy">a VIP</span>
+      </h1>
+      <span class="rule-accent mt-9" data-reveal style="--reveal-delay:180ms"></span>
+      <p class="mt-9 max-w-xl text-lg leading-relaxed text-navy-300" data-reveal style="--reveal-delay:240ms">
+        Book a detailing appointment online in under a minute &mdash; or pull into any of our three
+        Connecticut locations for an express wash and a full-service oil change, no appointment needed.
+      </p>
+      <div class="mt-12 flex flex-wrap items-center gap-4" data-reveal style="--reveal-delay:320ms">
+        <a href="/book" class="bg-white px-10 py-4 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-navy-900 no-underline transition-transform duration-300 hover:-translate-y-0.5">
+          Book Now
+        </a>
+        <a href="#wash" class="border border-white/25 px-10 py-4 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-white no-underline transition-colors hover:border-accent-on-navy hover:text-accent-on-navy">
+          Wash &amp; Lube Menu
+        </a>
+      </div>
+
+      <dl class="mt-20 grid max-w-3xl grid-cols-2 gap-x-10 gap-y-8 border-t border-white/12 pt-10 sm:grid-cols-4" data-reveal style="--reveal-delay:420ms">
+        {STATS.map((s) => (
+          <div>
+            <dt class="font-display text-4xl leading-none text-white">{s.figure}</dt>
+            <dd class="mt-2 text-[0.7rem] uppercase tracking-[0.16em] text-navy-300">{s.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee border-b border-border bg-background py-5">
+    <div class="marquee-track">
+      {[0, 1].map(() => (
+        <div class="flex shrink-0 items-center" aria-hidden="true">
+          {marquee.map((word) => (
+            <span class="flex items-center">
+              <span class="px-7 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-muted-foreground">{word}</span>
+              <span class="h-1 w-1 bg-accent"></span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Featured detailing -->
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+    <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+      <div>
+        <p class="eyebrow">By Appointment</p>
+        <h2 class="display-lg mt-4 max-w-2xl text-navy-900">Detailing worth booking a day around</h2>
+      </div>
+      <a href="/services" class="link-draw text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-navy-900 no-underline">
+        View all services
+      </a>
+    </div>
+
+    {featured.length > 0 ? (
+      <div class="mt-16 grid gap-6 md:grid-cols-3">
+        {featured.map((s, i) => (
+          <a href={`/services/${s.slug}`} data-reveal style={`--reveal-delay:${i * 90}ms`}
+             class="group flex flex-col border border-border no-underline transition-all duration-500 hover:border-navy-900 hover:shadow-[0_24px_60px_-32px_rgba(12,25,48,0.45)]">
+            <div class="aspect-[4/3] overflow-hidden bg-secondary">
+              {s.imageUrl && <img src={s.imageUrl} alt={s.name} loading="lazy" class="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105" />}
+            </div>
+            <div class="flex flex-1 flex-col p-8">
+              <h3 class="font-display text-[1.75rem] leading-tight text-navy-900">{s.name}</h3>
+              <span class="rule-accent mt-4 mb-5"></span>
+              <p class="text-[0.8125rem] font-medium uppercase tracking-[0.1em] text-muted-foreground">{s.tagLine}</p>
+              <span class="mt-auto pt-9 text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-navy-900">Book appointment</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="mt-16 border border-border p-10 text-sm text-muted-foreground">
+        Our detailing menu is loading. Call any location and we&rsquo;ll book you in directly.
+      </p>
+    )}
+
+    {assessment && (
+      <div class="grain relative mt-8 flex flex-wrap items-center justify-between gap-8 overflow-hidden navy-depth p-10 lg:p-12" data-reveal>
+        <div class="relative">
+          <p class="eyebrow-on-navy">Not sure what your car needs</p>
+          <p class="mt-4 font-display text-4xl leading-tight text-white">Twenty minutes, on the house</p>
+          <p class="mt-4 max-w-xl text-sm leading-relaxed text-navy-300">
+            A detailer walks your car with you &mdash; paint, interior, headlights &mdash; and quotes the
+            exact package before you commit to anything.
+          </p>
+        </div>
+        <a href={`/services/${assessment.slug}`} class="relative bg-white px-9 py-4 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-navy-900 no-underline transition-transform duration-300 hover:-translate-y-0.5">
+          Book the walkthrough
+        </a>
+      </div>
+    )}
+  </section>
+
+  <!-- Wash & Lube -->
+  <section id="wash" class="scroll-mt-24 border-y border-border bg-secondary">
+    <div class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+      <div data-reveal>
+        <p class="eyebrow">Drive Up, No Appointment</p>
+        <h2 class="display-lg mt-4 max-w-2xl text-navy-900">Wash and lube, while you wait</h2>
+        <p class="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+          The tunnel and the lube bay run all day at every location. Nothing to book &mdash; just pull in.
+        </p>
+      </div>
+
+      <div class="mt-16 grid gap-16 lg:grid-cols-2">
+        <div data-reveal>
+          <h3 class="font-display text-3xl text-navy-900">Express Wash</h3>
+          <span class="rule-accent mt-4"></span>
+          <dl class="mt-8">
+            {WASH_MENU.map((item) => (
+              <div class="flex items-baseline justify-between gap-8 border-b border-border py-5 transition-colors hover:border-navy-900">
+                <div>
+                  <dt class="text-base font-semibold text-navy-900">{item.name}</dt>
+                  <p class="mt-1.5 text-[0.8125rem] leading-relaxed text-muted-foreground">{item.detail}</p>
+                </div>
+                <dd class="font-display text-3xl text-navy-900">{item.price}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div data-reveal style="--reveal-delay:120ms">
+          <h3 class="font-display text-3xl text-navy-900">Oil Change &amp; Lube</h3>
+          <span class="rule-accent mt-4"></span>
+          <dl class="mt-8">
+            {LUBE_MENU.map((item) => (
+              <div class="flex items-baseline justify-between gap-8 border-b border-border py-5 transition-colors hover:border-navy-900">
+                <div>
+                  <dt class="text-base font-semibold text-navy-900">{item.name}</dt>
+                  <p class="mt-1.5 text-[0.8125rem] leading-relaxed text-muted-foreground">{item.detail}</p>
+                </div>
+                <dd class="font-display text-3xl text-navy-900">{item.price}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="mt-6 text-[0.8125rem] text-muted-foreground">
+            Every oil change includes a 21-point inspection and a free Express Exterior wash.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIP Club -->
+  <section id="club" class="grain relative scroll-mt-24 overflow-hidden navy-depth">
+    <div class="relative mx-auto grid w-full max-w-[1400px] gap-16 px-6 py-24 lg:grid-cols-2 lg:items-center lg:px-10 lg:py-32">
+      <div data-reveal>
+        <p class="eyebrow-on-navy">Membership</p>
+        <h2 class="display-lg mt-4 text-white">{MEMBERSHIP.name}</h2>
+        <span class="rule-accent mt-6"></span>
+        <p class="mt-8 max-w-lg text-base leading-relaxed text-navy-300">
+          Wash as often as you like. Members skip the queue in a dedicated lane and take twenty percent
+          off every detail package &mdash; which pays for the membership the first time you book one.
+        </p>
+      </div>
+      <div class="border border-white/12 bg-white/[0.04] p-10 backdrop-blur lg:p-12" data-reveal style="--reveal-delay:140ms">
+        <div class="flex items-baseline gap-3">
+          <span class="font-display text-7xl leading-none text-white">{MEMBERSHIP.price}</span>
+          <span class="text-sm text-navy-300">{MEMBERSHIP.cadence}</span>
+        </div>
+        <ul class="mt-10 space-y-5">
+          {MEMBERSHIP.perks.map((perk) => (
+            <li class="flex gap-4 border-b border-white/10 pb-5 text-sm leading-relaxed text-navy-300">
+              <span class="mt-2 h-1 w-1 shrink-0 bg-accent-on-navy"></span>
+              <span>{perk}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-9 text-[0.8125rem] text-navy-300">Sign up at any location. Cancel any time, no contract.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore -->
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-28">
+    <div class="grid gap-6 md:grid-cols-3">
+      {explore.map((e, i) => (
+        <a href={e.href} class="group flex flex-col border border-border p-9 no-underline transition-colors duration-500 hover:border-navy-900" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+          <p class="eyebrow">{e.eyebrow}</p>
+          <h3 class="mt-4 font-display text-2xl leading-tight text-navy-900">{e.title}</h3>
+          <p class="mt-4 text-sm leading-relaxed text-muted-foreground">{e.body}</p>
+          <span class="mt-auto pt-9 text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-navy-900">Read more</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Locations strip -->
+  <section class="border-t border-border bg-secondary">
+    <div class="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-between gap-8 px-6 py-14 lg:px-10">
+      <div class="flex flex-wrap gap-x-12 gap-y-4" data-reveal>
+        {LOCATIONS.map((loc) => (
+          <a href={`/locations#${loc.slug}`} class="no-underline">
+            <p class="font-display text-xl text-navy-900">{loc.city}</p>
+            <p class="mt-1 text-[0.8125rem] text-muted-foreground">{loc.phone}</p>
+          </a>
+        ))}
+      </div>
+      <a href="/book" class="bg-navy-900 px-8 py-3.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-primary-foreground no-underline transition-colors hover:bg-navy-800" data-reveal style="--reveal-delay:100ms">
+        Book Now
+      </a>
+    </div>
+  </section>
+</SiteLayout>

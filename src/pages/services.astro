@@ -1,0 +1,41 @@
+---
+// Services listing — data fetched SERVER-SIDE (SEO) and handed to the island as DTO props.
+// Keep this frontmatter; the island is our own listing component.
+import SiteLayout from "../layouts/SiteLayout.astro";
+import VipServicesView from "../components/bookings/VipServicesView";
+import { fetchServices, fetchBookingCategories } from "../wix/bookings/services";
+import type { BookingCategory, ServiceSummary } from "../wix/bookings/types";
+
+let services: ServiceSummary[] = [];
+let categories: BookingCategory[] = [];
+try {
+  [services, categories] = await Promise.all([fetchServices(), fetchBookingCategories()]);
+} catch {
+  // An unguarded SSR throw truncates the response mid-stream; the island renders the
+  // empty state instead.
+}
+---
+
+<SiteLayout
+  title="Detailing Services | VIP Wash & Lube"
+  description="Book appointment detailing at VIP Wash & Lube — interior and exterior detail, paint correction, ceramic coating and headlight restoration across our Stratford, Bridgeport and East Hartford locations."
+>
+  <section class="grain relative isolate overflow-hidden navy-depth">
+    <div class="relative mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+      <p class="eyebrow-on-navy" data-reveal>Appointment Detailing</p>
+      <h1 class="display-lg mt-6 max-w-3xl text-white" data-reveal style="--reveal-delay:90ms">
+        The detail bay, reserved<br /><span class="italic text-accent-on-navy">in your name</span>
+      </h1>
+      <span class="rule-accent mt-8" data-reveal style="--reveal-delay:160ms"></span>
+      <p class="mt-8 max-w-xl text-lg leading-relaxed text-navy-300" data-reveal style="--reveal-delay:220ms">
+        Pick your service, pick your time, and we&rsquo;ll have a bay waiting. Takes about a minute,
+        and no card is needed to reserve.
+      </p>
+    </div>
+  </section>
+
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-20 lg:px-10 lg:py-24">
+    <VipServicesView client:load initialServices={services} initialCategories={categories} />
+  </section>
+
+</SiteLayout>

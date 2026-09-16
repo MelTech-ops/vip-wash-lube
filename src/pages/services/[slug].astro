@@ -1,0 +1,118 @@
+---
+// Service detail + booking page.
+//
+// This is a Wix ITEM PAGE: the wixMetadata export + <SEO.Tags> below let the site owner edit
+// this page's title/description/OG in the dashboard and register the route in the sitemap.
+// Keep all three SEO pieces and this frontmatter. The booking island is client:only —
+// availability is timezone/session-specific.
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import VipBookingView from "../../components/bookings/VipBookingView";
+import { fetchServiceBySlug } from "../../wix/bookings/services";
+import { LOCATIONS } from "../../components/site/locations";
+import { WIX_APPS } from "@wix/essentials";
+import { SEO } from "@wix/seo/components";
+import { loadSEOTagsServiceConfig } from "@wix/seo/services";
+import { seoTags } from "@wix/seo";
+
+export const wixMetadata = {
+  appDefId: WIX_APPS.bookings.id,
+  pageIdentifier: WIX_APPS.bookings.servicePageMetadata.pageIdentifier,
+  identifiers: {
+    slug: WIX_APPS.bookings.servicePageMetadata.identifiers.slug,
+  },
+};
+
+const slug = Astro.params.slug!;
+
+// Behind Wix's proxy the request URL is internal — the real public page URL arrives on
+// x-wix-forwarded-url; the SEO service needs the public one.
+const forwardedUrl = Astro.request.headers.get("x-wix-forwarded-url");
+const pageUrl =
+  forwardedUrl && URL.canParse(forwardedUrl) && /^https?:$/.test(new URL(forwardedUrl).protocol)
+    ? forwardedUrl
+    : Astro.url.href;
+
+let service = null;
+let seoTagsServiceConfig = null;
+try {
+  [service, seoTagsServiceConfig] = await Promise.all([
+    fetchServiceBySlug(slug),
+    loadSEOTagsServiceConfig({
+      pageUrl,
+      itemType: seoTags.ItemType.BOOKINGS_SERVICE,
+      itemData: { slug },
+    }).catch(() => null),
+  ]);
+} catch {
+  // Guarded: an unhandled SSR throw truncates the response mid-stream.
+}
+
+if (!service) {
+  return new Response(null, { status: 404 });
+}
+
+const hours = service.durationMinutes
+  ? service.durationMinutes >= 480
+    ? "Full day"
+    : service.durationMinutes >= 60
+      ? `${Math.floor(service.durationMinutes / 60)} hr${service.durationMinutes % 60 ? ` ${service.durationMinutes % 60} min` : ""}`
+      : `${service.durationMinutes} min`
+  : null;
+---
+
+<SiteLayout title={`${service.name} | VIP Wash & Lube`}>
+  <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />
+
+  <nav class="mx-auto w-full max-w-[1400px] px-6 pt-8 lg:px-10">
+    <a href="/services" class="text-[0.8125rem] text-muted-foreground no-underline underline-offset-4 transition-colors hover:text-navy-900 hover:underline">
+      &larr; All detailing services
+    </a>
+  </nav>
+
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-10 lg:px-10 lg:py-14">
+    <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div>
+        {service.imageUrl && (
+          <div class="aspect-[4/3] overflow-hidden bg-secondary">
+            <img src={service.imageUrl} alt={service.name} class="h-full w-full object-cover" />
+          </div>
+        )}
+
+        <p class="eyebrow mt-9">Detailing</p>
+        <h1 class="display-lg mt-4 text-navy-900">{service.name}</h1>
+        <span class="rule-accent mt-5"></span>
+
+        {service.tagLine && (
+          <p class="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-navy-900">{service.tagLine}</p>
+        )}
+
+        {service.description && (
+          <p class="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">{service.description}</p>
+        )}
+
+        <dl class="mt-9 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-border pt-7">
+          {hours && (
+            <div>
+              <dt class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Time in the bay</dt>
+              <dd class="mt-1.5 font-display text-xl text-navy-900">{hours}</dd>
+            </div>
+          )}
+          <div>
+            <dt class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Payment</dt>
+            <dd class="mt-1.5 font-display text-xl text-navy-900">At the shop</dd>
+          </div>
+          <div class="col-span-2">
+            <dt class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Available at</dt>
+            <dd class="mt-1.5 text-sm text-navy-900">
+              {LOCATIONS.map((l) => l.city).join(" · ")}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="lg:sticky lg:top-28 lg:self-start">
+        <VipBookingView client:only="react" service={service} />
+      </div>
+    </div>
+  </section>
+</SiteLayout>

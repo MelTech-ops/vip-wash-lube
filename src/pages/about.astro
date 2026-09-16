@@ -1,0 +1,132 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import BeforeAfter from "../components/site/BeforeAfter";
+import { fetchServices } from "../wix/bookings/services";
+import type { ServiceSummary } from "../wix/bookings/types";
+import { STORY, STANDARDS, STATS } from "../components/site/locations";
+
+let services: ServiceSummary[] = [];
+try { services = await fetchServices(); } catch {}
+
+// PLACEHOLDER imagery — swap for real photos of the client's bays and cars.
+const gallery = services.filter((s) => s.imageUrl);
+const heroImg = gallery[0]?.imageUrl ?? "";
+---
+
+<SiteLayout
+  title="About | VIP Wash & Lube"
+  description="Family-run car wash, lube and detailing since the Stratford Avenue shop opened. Three Connecticut locations, one standard."
+>
+  <section class="grain relative isolate overflow-hidden navy-depth">
+    {heroImg && <img src={heroImg} alt="" aria-hidden="true" class="absolute inset-0 h-full w-full object-cover opacity-45" />}
+    <div class="scrim-hero absolute inset-0"></div>
+    <div class="relative mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+      <p class="eyebrow-on-navy" data-reveal>About Us</p>
+      <h1 class="display-lg mt-6 max-w-3xl text-white" data-reveal style="--reveal-delay:90ms">
+        Thirty years of<br /><span class="italic text-accent-on-navy">not cutting corners</span>
+      </h1>
+      <span class="rule-accent mt-8" data-reveal style="--reveal-delay:160ms"></span>
+      <dl class="mt-16 grid max-w-3xl grid-cols-2 gap-x-10 gap-y-8 border-t border-white/12 pt-10 sm:grid-cols-4" data-reveal style="--reveal-delay:240ms">
+        {STATS.map((s) => (
+          <div>
+            <dt class="font-display text-4xl leading-none text-white">{s.figure}</dt>
+            <dd class="mt-2 text-[0.7rem] uppercase tracking-[0.16em] text-navy-300">{s.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+    <div class="grid gap-16 lg:grid-cols-[0.4fr_1fr]">
+      <div data-reveal>
+        <p class="eyebrow">Our Story</p>
+      </div>
+      <div class="max-w-2xl space-y-14">
+        {STORY.map((s, i) => (
+          <div data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <h2 class="font-display text-3xl leading-tight text-navy-900">{s.heading}</h2>
+            <p class="mt-5 text-base leading-relaxed text-muted-foreground">{s.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase -->
+  {gallery.length > 0 && (
+    <section class="border-y border-border bg-secondary">
+      <div class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+        <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+          <div>
+            <p class="eyebrow">Out of Our Bays</p>
+            <h2 class="display-lg mt-4 max-w-2xl text-navy-900">The work, not the promises</h2>
+          </div>
+          <a href="/book" class="link-draw text-[0.75rem] font-semibold uppercase tracking-[0.16em] text-navy-900 no-underline">
+            Book your car in
+          </a>
+        </div>
+
+        <div class="mt-16 grid auto-rows-[15rem] grid-cols-2 gap-4 lg:grid-cols-4">
+          {gallery.map((s, i) => (
+            <a
+              href={`/services/${s.slug}`}
+              data-reveal
+              style={`--reveal-delay:${i * 70}ms`}
+              class={`group relative isolate overflow-hidden bg-navy-950 no-underline ${i === 0 ? "col-span-2 row-span-2" : i === 3 ? "lg:col-span-2" : ""}`}
+            >
+              <img src={s.imageUrl} alt={s.name} loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105" />
+              <div class="scrim-card absolute inset-0 opacity-90 transition-opacity duration-500 group-hover:opacity-100"></div>
+              <div class="absolute inset-x-0 bottom-0 p-6">
+                <p class="font-display text-xl leading-tight text-white">{s.name}</p>
+                <p class="mt-1.5 text-[0.7rem] uppercase tracking-[0.16em] text-accent-on-navy opacity-0 transition-opacity duration-500 group-hover:opacity-100">View &amp; book</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Before / After -->
+  {gallery.length >= 2 && (
+    <section class="grain relative overflow-hidden navy-depth">
+      <div class="relative mx-auto grid w-full max-w-[1400px] gap-14 px-6 py-24 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-10 lg:py-32">
+        <div data-reveal>
+          <p class="eyebrow-on-navy">Paint Correction</p>
+          <h2 class="display-lg mt-4 text-white">Drag it. That&rsquo;s the same car</h2>
+          <span class="rule-accent mt-6"></span>
+          <p class="mt-8 max-w-md text-base leading-relaxed text-navy-300">
+            Oxidation, swirl marks and water spotting come out under a machine polish. Most cars we
+            see have never had their paint corrected once &mdash; the difference is not subtle.
+          </p>
+          <a href="/services/ceramic-coating" class="mt-10 inline-block border border-white/25 px-9 py-4 text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-white no-underline transition-colors hover:border-accent-on-navy hover:text-accent-on-navy">
+            Book Paint Correction
+          </a>
+        </div>
+        <div data-reveal style="--reveal-delay:140ms">
+          <BeforeAfter client:visible beforeSrc={gallery[1].imageUrl} afterSrc={gallery[0].imageUrl} />
+          <p class="mt-4 text-[0.75rem] text-navy-300">Drag the handle to compare.</p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- The standard -->
+  <section class="mx-auto w-full max-w-[1400px] px-6 py-24 lg:px-10 lg:py-32">
+    <div data-reveal>
+      <p class="eyebrow">The VIP Standard</p>
+      <h2 class="display-lg mt-4 max-w-2xl text-navy-900">What the letters actually stand for</h2>
+    </div>
+    <div class="mt-16 grid gap-12 md:grid-cols-3">
+      {STANDARDS.map((s, i) => (
+        <div class="border-t border-navy-900 pt-8" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+          <span class="font-display text-sm text-accent">{s.n}</span>
+          <h3 class="mt-3 font-display text-2xl leading-tight text-navy-900">{s.title}</h3>
+          <p class="mt-4 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</SiteLayout>

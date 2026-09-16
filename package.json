@@ -20,7 +20,14 @@
     "@wix/essentials": "^1.0.6",
     "@wix/sdk": "^1.21.5",
     "astro": "^5.8.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "tailwindcss": "^4.1.7",
+    "@tailwindcss/vite": "^4.1.7",
+    "@wix/bookings": "^1.0.1650",
+    "@wix/auto_sdk_ecom_cart-v-2": "^1.0.192",
+    "@wix/forms": "^1.0.500",
+    "@wix/redirects": "^1.0.125",
+    "@wix/seo": "^1.0.79"
   },
   "devDependencies": {
     "@astrojs/react": "^4.3.0",
