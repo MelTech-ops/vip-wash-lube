@@ -36,7 +36,7 @@ export const LOCATIONS: Location[] = [
     phoneHref: "tel:+12036961073",
     mapsQuery: "1837+Main+Street+Bridgeport+CT+06604",
     blurb:
-      "Main Street location built for volume — in and out on a lunch break, or leave the car with us for the afternoon.",
+      "Main Street location built for volume. In and out on a lunch break, or leave the car with us for the afternoon.",
     features: ["Express wash tunnel", "2 detail bays", "Full lube service", "Members lane"],
   },
   {
@@ -48,15 +48,15 @@ export const LOCATIONS: Location[] = [
     phoneHref: "tel:+18602638865",
     mapsQuery: "170+Tolland+Street+East+Hartford+CT+06108",
     blurb:
-      "Our newest shop, and the one set up for the heavy work — ceramic coatings and multi-stage paint correction under controlled light.",
+      "Our newest shop, and the one set up for the heavy work. Ceramic coatings and multi-stage paint correction under controlled light.",
     features: ["Express wash tunnel", "2 detail bays", "Coating cure bay", "Full lube service"],
   },
 ];
 
 export const HOURS = [
-  { days: "Monday – Friday", time: "8:00 AM – 6:00 PM" },
-  { days: "Saturday", time: "8:00 AM – 6:00 PM" },
-  { days: "Sunday", time: "9:00 AM – 4:00 PM" },
+  { days: "Monday to Friday", time: "8:00 AM to 6:00 PM" },
+  { days: "Saturday", time: "8:00 AM to 6:00 PM" },
+  { days: "Sunday", time: "9:00 AM to 4:00 PM" },
 ];
 
 export const WASH_MENU = [
@@ -102,14 +102,14 @@ export const STATS = [
 
 export const STANDARDS = [
   { n: "01", title: "Two buckets, always", body: "Grit guards, a fresh microfiber per panel, pH-neutral soap. We do not put swirl marks into paint we were hired to correct." },
-  { n: "02", title: "Bays you can see into", body: "Glass-front detail bays at every location. Watch the work from the lounge, or don't — the result is the same." },
+  { n: "02", title: "Bays you can see into", body: "Glass-front detail bays at every location. Watch the work from the lounge, or don't. The result is the same." },
   { n: "03", title: "The same hands, every time", body: "Family-run since the Stratford Avenue shop opened. Our detailers stay, so your car meets someone who remembers it." },
 ];
 
 export const STORY = [
   {
     heading: "It started with one tunnel on Stratford Avenue",
-    body: "A single wash bay, a hand-painted sign, and a rule that has not changed since: nobody drives off in a car we would not be happy to hand back to our own family. The tunnel got busier, the lube bay went in, and the detail bays came last — because we would not offer detailing until we could do it properly.",
+    body: "A single wash bay, a hand-painted sign, and a rule that has not changed since: nobody drives off in a car we would not be happy to hand back to our own family. The tunnel got busier, the lube bay went in, and the detail bays came last, because we would not offer detailing until we could do it properly.",
   },
   {
     heading: "Three shops, one standard",

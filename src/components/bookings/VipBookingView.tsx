@@ -42,7 +42,7 @@ export default function VipBookingView({ service }: { service: ServiceDetail }) 
         <span className="rule-accent mx-auto mt-5 mb-5" />
         <p className="text-sm leading-relaxed">
           <span className="text-white">{service.name}</span>
-          {selectedSlot ? ` — ${selectedSlot.dayKey} at ${selectedSlot.label}` : ""}.
+          {selectedSlot ? ` on ${selectedSlot.dayKey} at ${selectedSlot.label}` : ""}.
           <br />A confirmation email is on its way.
         </p>
         <p className="mt-5 text-[0.8125rem]">
